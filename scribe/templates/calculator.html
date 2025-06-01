@@ -1,0 +1,196 @@
+{%extends "layout.html"%}
+{%block content%}
+<h1>Scientific Calculator</h1>
+<p>When using the calculator close any open brackets otherwise an error will appear.</p>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scientific Calculator</title>
+    <style>
+        <p>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: right;
+            align-items: bottom;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }</p>
+        .calculator {
+            border-radius: 100px;
+            overflow: hidden;
+            box-shadow: 10 10 10px rgba(0, 0, 0, 0.1);
+        }
+        .calculator-screen {
+            width: 100%;
+            height: 100px;
+            border: none;
+            background-color: #252525;
+            color: white;
+            text-align: right;
+            padding: 0 120px;
+            font-size: 2.5rem;
+            box-sizing: border-box;
+            word-wrap: break-word;
+        }
+        .calculator-keys {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            padding: 20px;
+            background-color: #fff;
+        }
+        .calculator-keys button {
+            height: 60px;
+            font-size: 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .calculator-keys button:active {
+            background-color: #ccc;
+        }
+        .operator {
+            background-color: #f9a825;
+        }
+        .operator:active {
+            background-color: #f57f17;
+        }
+        .equal-sign {
+            background-color: #ffab00;
+            grid-column: span 2;
+        }
+        .equal-sign:active {
+            background-color: #ff6f00;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="calculator-screen" id="screen"></div>
+        <div class="calculator-keys">
+            <button class="operator" value="+">+</button>
+            <button class="operator" value="-">-</button>
+            <button class="operator" value="*">&times;</button>
+            <button class="operator" value="/">&divide;</button>
+            <button class="operator" value="%">%</button>
+            <button value="7">7</button>
+            <button value="8">8</button>
+            <button value="9">9</button>
+            <button class="operator" value="**">x<sup>y</sup></button>
+            <button class="operator" value="sqrt">√</button>
+            <button value="4">4</button>
+            <button value="5">5</button>
+            <button value="6">6</button>
+            <button class="operator" value="(">(</button>
+            <button class="operator" value=")">)</button>
+            <button value="1">1</button>
+            <button value="2">2</button>
+            <button value="3">3</button>
+            <button class="operator" value="sin">sin</button>
+            <button class="operator" value="cos">cos</button>
+            <button value="0">0</button>
+            <button value=".">.</button>
+            <button class="operator" value="tan">tan</button>
+            <button class="equal-sign operator" value="=">=</button>
+            <button class="operator" value="C">C</button>
+            <button class="operator" value="del">del</button>
+        </div>
+    </div>
+    <script>
+        const calculator = {
+            screen: document.querySelector('#screen'),
+            currentValue: '',
+            updateScreen() {
+                this.screen.innerText = this.currentValue;
+            },
+            clear() {
+                this.currentValue = '';
+                this.updateScreen();
+            },
+            deleteLast() {
+                this.currentValue = this.currentValue.slice(0, -1);
+                this.updateScreen();
+            },
+            inputDigit(digit) {
+                this.currentValue += digit;
+                this.updateScreen();
+            },
+             inputOperator(operator) {
+                if (this.currentValue === '' && operator !== 'sqrt' && operator !== 'sin' && operator !== 'cos' && operator !== 'tan') return;
+                if (['sqrt', 'sin', 'cos', 'tan'].includes(operator)) {
+                    this.currentValue += `${operator}(`;
+                } else {
+                    this.currentValue += operator;
+                }
+                this.updateScreen();
+            },
+            calculate() {
+                try {
+                    let expression = this.currentValue.replace(/(\d+)(sqrt|sin|cos|tan)\(/g, '$1*$2(');
+                    expression = expression.replace(/sqrt/g, 'Math.sqrt')
+                                           .replace(/sin/g, 'Math.sin')
+                                           .replace(/cos/g, 'Math.cos')
+                                           .replace(/tan/g, 'Math.tan')
+                                           .replace(/\)(\d+)/g, ')*$1')
+                                           .replace(/(\d+)\(/g, '$1*(');
+
+                    console.log('Evaluating expression:', expression); // Debug log
+
+                    if (expression.includes('%')) {
+                        const [operand1, operand2] = expression.split('%');
+                        expression = ((parseFloat(operand1) / parseFloat(operand2)) * 100).toString();
+                    } else {
+                        expression = eval(expression).toString();
+                    }
+
+                    console.log('Calculation result:', expression); // Debug log
+
+                    this.currentValue = expression;
+                } catch (error) {
+                    console.error('Calculation error:', error); // Debug log
+                    this.currentValue = 'Error';
+                }
+                this.updateScreen();
+            }
+        };
+        
+        document.querySelector('.calculator-keys').addEventListener('click', event => {
+            const { target } = event;
+            const { value } = target;
+            if (!target.matches('button')) {
+                return;
+            }
+            switch (value) {
+                case '+':
+                case '-':
+                case '*':
+                case '/':
+                case '%':
+                case '**':
+                case 'sqrt':
+                case 'sin':
+                case 'cos':
+                case 'tan':
+                case '(':
+                case ')':
+                    calculator.inputOperator(value);
+                    break;
+                case '=':
+                    calculator.calculate();
+                    break;
+                case 'C':
+                    calculator.clear();
+                    break;
+                case 'del':
+                    calculator.deleteLast();
+                    break;
+                default:
+                    calculator.inputDigit(value);
+                    break;
+            }
+        });
+    </script>
+</body>
+</html>
+{%endblock%}

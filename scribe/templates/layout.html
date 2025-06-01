@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>FARAN</title>
+		<link rel="stylesheet" href="{{url_for('static',filename='css/main.css')}}">
+	</head>
+	<body>
+		<header>
+			<div class="container">
+				<h1 class="logo">faran</h1>
+				<strong><nav>
+					<ul class="menu">
+						<li><a href="{{ url_for('home') }}">Home</a></li>
+						<li><a href="{{ url_for('about') }}">About</a></li>
+						<li><a href="{{ url_for('calculator') }}">Calculator</a></li>
+						<li><a href="{{ url_for('calculator') }}">Financial Charts</a></li>
+						<li><a href="{{ url_for('weather') }}">Weather Report</a></li>
+					</ul>
+				</nav></strong>
+			</div>
+		</header>
+		<body style="background-color: tan;">
+		<div class="container">
+			{%block content%}
+			{%endblock%}
+		</div>
+	</body>
+</html>		
